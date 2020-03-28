@@ -12,8 +12,13 @@ namespace ParticleSystemStarter
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        ParticleSystem particleSystem;
+        ParticleSystem fairyDustRed;
+        ParticleSystem fairyDustPink;
+        ParticleSystem fireRed;
+        ParticleSystem fireOrange;
+        ParticleSystem rain;
         Texture2D particleTexture;
+        Texture2D pixelTexture;
         Random random;
 
         public Game1()
@@ -44,9 +49,18 @@ namespace ParticleSystemStarter
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             particleTexture = Content.Load<Texture2D>("particle");
-            particleSystem = new ParticleSystem(GraphicsDevice, 1000, particleTexture);
-            particleSystem.Emitter = new Vector2(100, 100);
-            particleSystem.SpawnPerFrame = 4;
+            pixelTexture = Content.Load<Texture2D>("pixel");
+            fairyDustRed = new ParticleSystem(GraphicsDevice, 1000, particleTexture);
+            //fairyDustRed.Emitter = new Vector2(100, 100);
+            fairyDustRed.SpawnPerFrame = 4;
+            fairyDustPink = new ParticleSystem(GraphicsDevice, 900, particleTexture);
+            fairyDustPink.SpawnPerFrame = 4;
+            fireRed = new ParticleSystem(GraphicsDevice, 500, pixelTexture);
+            fireRed.SpawnPerFrame = 6;
+            fireOrange = new ParticleSystem(GraphicsDevice, 600, pixelTexture);
+            fireOrange.SpawnPerFrame = 6;
+            rain = new ParticleSystem(GraphicsDevice, 2000, pixelTexture);
+            rain.SpawnPerFrame = 10;
             random = new Random();
 
             // TODO: use this.Content to load your game content here
@@ -72,8 +86,72 @@ namespace ParticleSystemStarter
                 Exit();
 
             // TODO: Add your update logic here
-            particleSystem.Update(gameTime);
-            particleSystem.SpawnParticle = (ref Particle particle) =>
+
+            rain.Update(gameTime);
+            rain.SpawnParticle = (ref Particle particle) =>
+            {
+                particle.Position = new Vector2(500, -300);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(-500, 500, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(700, 0, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = 0.3f * new Vector2(0, (float)random.NextDouble());
+                particle.Color = Color.LightBlue;
+                particle.Scale = 3f;
+                particle.Life = 2.0f;
+            };
+            rain.UpdateParticle = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position += deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
+            fireRed.Update(gameTime);
+            fireRed.SpawnParticle = (ref Particle particle) =>
+            {
+                particle.Position = new Vector2(300, 300);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(30, -30, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(100, 0, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = 5f * new Vector2(3, (float)random.NextDouble());
+                particle.Color = Color.DarkRed;
+                particle.Scale = 3f;
+                particle.Life = 2.0f;
+            };
+            fireRed.UpdateParticle = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position -= deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
+            fireOrange.Update(gameTime);
+            fireOrange.SpawnParticle = (ref Particle particle) =>
+            {
+                particle.Position = new Vector2(300, 300);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(30, -30, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(100, 0, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = 5f * new Vector2(3, (float)random.NextDouble());
+                particle.Color = Color.Orange;
+                particle.Scale = 2f;
+                particle.Life = 2.0f;
+            };
+            fireOrange.UpdateParticle = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position -= deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
+            fairyDustRed.Update(gameTime);
+            fairyDustRed.SpawnParticle = (ref Particle particle) =>
             {
                 MouseState mouse = Mouse.GetState();
                 particle.Position = new Vector2(mouse.X, mouse.Y);
@@ -82,19 +160,42 @@ namespace ParticleSystemStarter
                     MathHelper.Lerp(0, 100, (float)random.NextDouble()) // Y between 0 and 100
                     );
                 particle.Acceleration = 0.1f * new Vector2(0, (float)-random.NextDouble());
-                particle.Color = Color.Gold;
+                particle.Color = Color.Red;
                 particle.Scale = 1f;
                 particle.Life = 1.0f;
             };
 
-            particleSystem.UpdateParticle = (float deltaT, ref Particle particle) =>
+            fairyDustRed.UpdateParticle = (float deltaT, ref Particle particle) =>
             {
                 particle.Velocity += deltaT * particle.Acceleration;
                 particle.Position += deltaT * particle.Velocity;
                 particle.Scale -= deltaT;
                 particle.Life -= deltaT;
             };
-            
+
+            fairyDustPink.Update(gameTime);
+            fairyDustPink.SpawnParticle = (ref Particle particle) =>
+            {
+                MouseState mouse = Mouse.GetState();
+                particle.Position = new Vector2(mouse.X, mouse.Y);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(-50, 50, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(0, 100, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = 0.1f * new Vector2(0, (float)-random.NextDouble());
+                particle.Color = Color.DeepPink;
+                particle.Scale = 1f;
+                particle.Life = 1.0f;
+            };
+
+            fairyDustPink.UpdateParticle = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position += deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
 
             base.Update(gameTime);
         }
@@ -105,10 +206,15 @@ namespace ParticleSystemStarter
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkSlateGray);
 
             // TODO: Add your drawing code here
-            particleSystem.Draw();
+            fairyDustRed.Draw();
+            fairyDustPink.Draw();
+            fireOrange.Draw();
+            fireRed.Draw();
+            rain.Draw();
+            
             base.Draw(gameTime);
         }
     }
